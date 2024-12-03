@@ -1,0 +1,1396 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+	<title>Enterprise Map</title>
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+
+	<!-- use 4.16 for local host and 4.11 to deploy-->
+	<link rel="stylesheet" href="https://js.arcgis.com/4.11/esri/themes/light/main.css">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link href="css/main.css" rel="stylesheet">
+
+	<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+	<!-- use 4.18 for local host and 4.11 to deploy-->
+	<script src="https://js.arcgis.com/4.11/"></script>
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+	<script type="text/javascript" src="js/SingleLocationModalEvents.js?v=2.1"></script>
+	<script type="text/javascript" src="js/SingleLocation.js?v=2.1"></script>
+
+
+
+</head>
+<body>
+	<div class="loader2"></div>
+	<div class="loader"></div>
+
+	<!-- Initial Modal -->
+	<div class="modal fade centered-modal opportunity-type" id="initModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header bg-success" style="text-align:center;">
+					<h3 class="text-white" style="text-align:center;"> Enter Your Opportunity</h3>
+				</div>
+				<div class="modal-footer" style="text-align:center;">
+					<button id="NewOppbutton" type="button" onclick="NewOppEvent()" class="btn btn-primary hide">New Opportunity</button>
+					<button id="ExistingOppbutton" type="button" onclick="ExistingOppEvent()" class="btn btn-primary" style="display:none">Existing Opportunity</button>
+					<div class="row" id="oppIdfornew" style="padding-top:10px;">
+						<label>Opportunity ID :</label>
+						<input type="text" id="oppID" />
+						<button type="button" onclick="searchOpp()" class="btn btn-primary"> Submit </button>
+
+					</div>
+					<div class="row" id="notification" style="padding-top:10px; display:none;">
+						<label>Enter all your Z locations first in top right corner search bar, or use the bulk upload functionality by clicking Bulk Upload Button.</label>
+					</div>
+					<div class="row" id="notification2" style="padding-top:10px; display:none;">
+						<label>Enter all your Z locations first in top right corner search bar, or use the bulk upload functionality by clicking Bulk Upload Button.</label>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="viewDiv">
+		<div id="locationView">
+
+
+			<!--Loader-->
+			<div id="loaderModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content" style="width: 48px">
+						<div class="loader3"></div>
+						<div class="loader4"></div>
+					</div>
+				</div>
+			</div>
+
+			<div id="mainAlert"></div>
+			<!-- Modal to bulk Upload -->
+			<div class="modal fade bd-example" id="BulkUploadModel" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-xlg modal-lg" role="dialog">
+					<div class="modal-content">
+						<div class="modal-header row">
+							<div class="col-xs-10" style="">
+								<h5 class="modal-title">
+									Bulk Upload
+								</h5>
+							</div>
+							<div class="col-xs-1" style="float:right">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="col-xs-1" style="float:right">
+								<button class="btn btn-info btn-sm" data-toggle="modal" data-target="#instructions"><span class="glyphicon glyphicon-info-sign"></span> View Instruction</button>
+							</div>
+						</div>
+						<div class="modal-body" style="height: 600px;">
+							<div class="form-group">
+								<div class="col-xs-3">
+									<!--<label style="padding-bottom:8px;">Download Template</label><br />-->
+									<a href="location_sheet/Enterprise_Location_Template.csv" class="btn btn-info btn-sm">
+										<span class="glyphicon glyphicon-save"></span> Download Template
+									</a>
+								</div>
+
+								<div class="col-xs-5">
+									<div class="input-group">
+										<input type="file" id="csvfile" style="" />
+										<span class="input-group-btn "><button id="UploadButton" class="btn btn-info btn-sm" type="button" onclick="Upload()"><span class="glyphicon glyphicon-open"></span> Upload csv</button></span>
+									</div>
+								</div>
+
+								<div class="col-xs-3" style="text-align:center">
+									<button class="btn btn-info btn-sm " data-toggle="modal" data-target="#bulkSelect">Select/De-Select All</button>
+								</div>
+
+								<div class="col-xs-1" style="float:right;">
+									<button id="ErrorsDisplay" data-toggle="modal" data-target="#errors" class="btn btn-info btn-sm" type="button">Errors</button>
+								</div>
+							</div>
+							<div class="form-group col-xs-12" style="padding-top:1px;">
+								<!--<div id="bulkUploadAlert"></div>-->
+								<!--<button data-toggle="modal" data-target="#errors" class="btn btn-danger" type="button">Errors</button>-->
+							</div>
+
+							<div id="myGrid" style="height: 535px; width:100%; padding-top:1px;" class="ag-theme-alpine"></div>
+							<div class="example-header">
+								Page Size:
+								<select onchange="onPageSizeChanged()" id="page-size">
+									<option value="10" selected>10</option>
+									<option value="50">50</option>
+									<option value="100">100</option>
+									<option value="150">150</option>
+									<option value="200">200</option>
+									<option value="500">500</option>
+								</select>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-primary" onclick="addAllLocationFromTableToCart()">Add to Location Cart</button>
+							<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Modal for asking Career Account  -->
+			<div class="modal fade" id="carrierModal">
+				<div class="modal-dialog" role="dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h5 class="modal-title">Current Location</h5>
+						</div>
+						<div class="modal-body"></div>
+						<div class="modal-footer"></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Modal for Business Location -->
+			<div class="modal fade" id="LocInfo">
+				<div class="modal-dialog" role="dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h5 class="modal-title">Current Location</h5>
+						</div>
+
+						<form id="businessAccountForm">
+							<div class="modal-body">
+								<div id="buisnessAcountAlert"></div>
+								<div class="form-group" id="hqAddressDiv">
+									<label class="checkbox" style="padding-left:25px;">
+										<input type="checkbox" id="hqAddress" value="" class="request-requesteoc" /> Is HQ Address?
+									</label>
+								</div>
+								<div class="form-group" id="primaryAddressDiv">
+									<label class="checkbox" style="padding-left:25px;">
+										<input type="checkbox" id="primaryAddress" value="" class="request-requesteoc" /> Is Primary Contact Address?
+									</label>
+								</div>
+								<div class="form-group" style="">
+									<label><span class="smaller" style="color:red"> * </span>Location Name</label>
+									<input type="text" class="form-control request-sitecontact" id="sla" name="sla" maxlength="39" placeholder="Location Name" />
+								</div>
+								<div class="form-group" style="">
+									<label><span class="smaller" style="color:red"> * </span>Build Type</label>
+									<select class="form-control" id="locationtype">
+										<option value=""></option>
+										<option value="New">New</option>
+										<option value="Existing">Existing</option>
+										<option id="displayOnNet" style="display:none;" value="OnNet">OnNet</option>
+									</select>
+								</div>
+								<div class="form-group">
+									<label><span class="smaller" style="color:red"> * </span>Location Type </label>
+									<select class="form-control" id="locationtype1">
+										<option value=""> </option>
+										<option value="Building"> Building </option>
+										<option value="Campus Building"> Campus Building </option>
+										<option value="Tower"> Tower </option>
+										<option value="Small Cell"> Small Cell </option>
+										<option value="Splice Point"> Splice Point </option>
+										<option value="Carrier Building/Data Center"> Carrier Building/Data Center </option>
+									</select>
+								</div>
+
+								<div class="form-group">
+									<label> <span class="smaller" style="color:red"> * </span>Primary Use Type</label>
+									<select class="form-control" id="locationSubType">
+										<option value=""> </option>
+										<!--<option class="displayForSplicePoint" value="Null" style="display:none"> Null </option>-->
+										<option class="displayForBuilding" value="Hospitality" style="display:none"> Hospitality </option>
+										<option class="displayForBuilding" value="Hospital" style="display:none"> Hospital </option>
+										<option class="displayForBuilding" value="Education" style="display:none"> Education </option>
+										<option class="displayForBuilding" value="Commercial Office" style="display:none"> Commercial Office </option>
+										<option class="displayForBuilding" value="Industrial" style="display:none"> Industrial </option>
+										<option class="displayForBuilding" value="Warehouse" style="display:none"> Warehouse </option>
+										<option class="displayForBuilding" value="Retail - Single Tenant Building" style="display:none"> Retail - Single Tenant Building </option>
+										<option class="displayForBuilding" value="Retail - Multitenant Facility" style="display:none"> Retail - Multitenant Facility </option>
+										<option class="displayForBuilding" value="Military Facility" style="display:none"> Military Facility </option>
+										<option class="displayForBuilding" value="Mixed Use" style="display:none"> Mixed Use </option>
+										<option class="" value="Other"> Other </option>
+										<option class="displayForTower" value="Carrier Hut" style="display:none"> Carrier Hut </option>
+										<option class="displayForTower" value="H-Frame" style="display:none"> H-Frame </option>
+										<option class="displayForCarrierBuilding" style="display:none" value="Commercial Computing Data Center"> Commercial Computing Data Center </option>
+										<option class="displayForCarrierBuilding" value="Carrier Hotel - Multitenant" style="display:none"> Carrier Hotel - Multitenant </option>
+										<option class="displayForCarrierBuilding" value="Wireless Carrier MSC" style="display:none"> Wireless Carrier MSC </option>
+										<option class="displayForCarrierBuilding" value="Single Carrier CO/POP" style="display:none"> Single Carrier CO/POP </option>
+									</select>
+								</div>
+
+								<div class="form-group" id="displayMultiTenant" style="display:none">
+									<label> Multi Tenant  </label>
+									<label class="radio-inline">
+										<input type="radio" name="muliTenant" value="Yes"> Yes
+									</label>
+									<label class="radio-inline">
+										<input type="radio" name="muliTenant" value="No" checked> No
+									</label>
+								</div>
+								<div class="form-group">
+									<label>Site Address</label>
+									<input type="text" class="form-control request-siteaddress" value="" id="address" name="address" readonly="readonly">
+								</div>
+								<div class="form-group" id="displayFloor" style="display:none">
+									<label> Floor </label>
+									<select class="form-control" id="floor">
+										<option value=""> </option>
+										<option value="LL3"> LL3 </option>
+										<option value="LL2"> LL2 </option>
+										<option value="LL1"> LL1 </option>
+										<option value="1" selected="selected"> 1 </option>
+										<option value="2"> 2 </option>
+										<option value="3"> 3 </option>
+										<option value="4"> 4 </option>
+										<option value="5"> 5 </option>
+										<option value="6"> 6 </option>
+										<option value="7"> 7 </option>
+										<option value="8"> 8 </option>
+										<option value="9"> 9 </option>
+										<option value="10"> 10 </option>
+										<option value="11"> 11 </option>
+										<option value="12"> 12 </option>
+										<option value="13"> 13 </option>
+										<option value="14"> 14 </option>
+										<option value="15"> 15 </option>
+										<option value="16"> 16 </option>
+										<option value="17"> 17 </option>
+										<option value="18"> 18 </option>
+										<option value="19"> 19 </option>
+										<option value="20"> 20 </option>
+										<option value="21"> 21 </option>
+										<option value="22"> 22 </option>
+										<option value="23"> 23 </option>
+										<option value="24"> 24 </option>
+										<option value="25"> 25 </option>
+										<option value="26"> 26 </option>
+										<option value="27"> 27 </option>
+										<option value="28"> 28 </option>
+										<option value="29"> 29 </option>
+										<option value="30"> 30 </option>
+										<option value="31"> 31 </option>
+										<option value="32"> 32 </option>
+										<option value="33"> 33 </option>
+										<option value="34"> 34 </option>
+										<option value="35"> 35 </option>
+										<option value="36"> 36 </option>
+										<option value="37"> 37 </option>
+										<option value="38"> 38 </option>
+										<option value="39"> 39 </option>
+										<option value="40"> 40 </option>
+										<option value="41"> 41 </option>
+										<option value="42"> 42 </option>
+										<option value="43"> 43 </option>
+										<option value="44"> 44 </option>
+										<option value="45"> 45 </option>
+										<option value="46"> 46 </option>
+										<option value="47"> 47 </option>
+										<option value="48"> 48 </option>
+										<option value="49"> 49 </option>
+										<option value="50"> 50 </option>
+										<option value="51"> 51 </option>
+										<option value="52"> 52 </option>
+										<option value="53"> 53 </option>
+										<option value="54"> 54 </option>
+										<option value="55"> 55 </option>
+										<option value="56"> 56 </option>
+										<option value="57"> 57 </option>
+										<option value="58"> 58 </option>
+										<option value="59"> 59 </option>
+										<option value="60"> 60 </option>
+										<option value="61"> 61 </option>
+										<option value="62"> 62 </option>
+										<option value="63"> 63 </option>
+										<option value="64"> 64 </option>
+										<option value="65"> 65 </option>
+										<option value="66"> 66 </option>
+										<option value="67"> 67 </option>
+										<option value="68"> 68 </option>
+										<option value="69"> 69 </option>
+										<option value="70"> 70 </option>
+										<option value="71"> 71 </option>
+										<option value="72"> 72 </option>
+										<option value="73"> 73 </option>
+										<option value="74"> 74 </option>
+										<option value="75"> 75 </option>
+										<option value="76"> 76 </option>
+										<option value="77"> 77 </option>
+										<option value="78"> 78 </option>
+										<option value="79"> 79 </option>
+										<option value="80"> 80 </option>
+										<option value="81"> 81 </option>
+										<option value="82"> 82 </option>
+										<option value="83"> 83 </option>
+										<option value="84"> 84 </option>
+										<option value="85"> 85 </option>
+										<option value="86"> 86 </option>
+										<option value="87"> 87 </option>
+										<option value="88"> 88 </option>
+										<option value="89"> 89 </option>
+										<option value="90"> 90 </option>
+										<option value="91"> 91 </option>
+										<option value="92"> 92 </option>
+										<option value="93"> 93 </option>
+										<option value="94"> 94 </option>
+										<option value="95"> 95 </option>
+										<option value="96"> 96 </option>
+										<option value="97"> 97 </option>
+										<option value="98"> 98 </option>
+										<option value="90"> 99 </option>
+										<option value="100"> 100 </option>
+									</select>
+								</div>
+								<div class="form-group">
+									<label> STE / APT / RM </label>
+									<select class="form-control request-apt" value="" id="apartment_type" name="apartment_type">
+										<option value=""></option>
+										<option value="APT">APT</option>
+										<option value="STE">STE</option>
+										<option value="RM">RM</option>
+										<option value="DEPT">DEPT</option>
+										<option value="BLDG">BLDG</option>
+										<option value="UNIT">UNIT</option>
+									</select>
+								</div>
+								<div class="form-group" id="showApartmentNumber" style="display:none">
+									<label id="apartmentValueLabel"></label>
+									<input class="form-control request-apt" value="" id="apartment" name="apartment">
+									<!--<span class="smaller" style="color:red"> * Example: Apt -> 3B / Ste -> 3000, etc..</span>-->
+								</div>
+								<div class="form-group">
+									<label>Coordinates</label>
+									<input type="text" id="lat_long" class="form-control request-coordinates" value="" name="lat_long" readonly="readonly">
+								</div>
+								<!--<div class="form-group">
+									<label>NPA/NXX</label>
+									<input type="number" id="npanxx" name="npanxx" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" class="form-control numeric" min="100000" maxlength="6" placeholder="Enter NPA/NXX" />
+								</div>-->
+								<!--<div class="form-group">
+									<label>Bandwidth Requested</label>
+									<select class="form-control request-bandwidth" onchange="check()" id="bandwidth" name="bandwidth">
+										<option value="20Mb">20Mb</option>
+										<option value="50Mb">50Mb</option>
+										<option value="100Mb">100Mb</option>
+										<option value="200Mb">200Mb</option>
+										<option value="500Mb">500Mb</option>
+										<option value="1000Mb">1Gb</option>
+										<option value="2000Mb">2Gb</option>
+										<option value="5000Mb">5Gb</option>
+										<option value="10000Mb">10Gb</option>
+										<option value="100000Mb">100Gb</option>
+									</select>
+								</div>-->
+								<div class="form-group">
+
+									<label class="checkbox" style="padding-left:25px; display:none;">
+										<input type="checkbox" id="eoc" name="eoc" onclick="showRegion()" value="Eoc" class="request-requesteoc" />Request EOC Loop Serviceability
+									</label>
+									<label class="checkbox" style="padding-left:25px;">
+										<input type="checkbox" id="fiber" name="fiber" onclick="showRegion()" value="Fiber" class="request-requestfiber" />Request FSR (On-Net)
+									</label>
+									<label class="checkbox" style="padding-left:25px; display: none;">
+										<input type="checkbox" id="offnet" name="offnet" onclick="showRegion()" value="Offnet" class="request-requestoffnet" />Request Off-Net Serviceability Request
+									</label>
+									<div id="diveryn" style="display:none;">
+										<label class="checkbox" style="padding-left:25px; ">
+											<input type="checkbox" id="diversity" name="diversity" onclick="showDiversityType()" />Diversity?
+										</label>
+									</div>
+									<div id="divdiversityType" style="display:none;">
+										<label>Diversity Type:</label>
+										<select class="form-control" id="diversitytype" name="diversitytype" placeholder="Select Diversity Type">
+											<option value=""></option>
+											<option value="Dedicated Physical Ring"> Dedicated Physical Ring </option>
+											<option value="Dedicated Virtual Ring"> Dedicated Virtual Ring </option>
+											<option value="Dual Entrance Facility"> Dual Entrance Facility </option>
+											<option value="Non Collapsed Last Mile Lateral"> Non Collapsed Last Mile Lateral </option>
+											<option value="Non Collapsed Lateral & Dual Entrance"> Non Collapsed Lateral & Dual Entrance </option>
+											<option value="POP Diversity with Router Diversity"> POP Diversity with Router Diversity </option>
+											<option value="Redundant CPE Router/Switch 10G Port"> Redundant CPE Router/Switch 10G Port </option>
+											<option value="Redundant CPE Router/Switch 1G Port"> Redundant CPE Router/Switch 1G Port </option>
+											<option value="Single Pop with Router Diversity"> Single Pop with Router Diversity </option>
+										</select>
+									</div>
+
+								</div>
+
+								<div class="form-group" id="displayOnNetRules" style="display:none">
+
+									<div class="form-group">
+										<label> Additional Costs</label>
+										<div>
+											<span style="position: absolute; margin-left: 5px; margin-top: 5px;">$</span>
+											<input type="number" class="form-control request-sitecontact" id="additionalcost" style="padding-left:20px;" value="6000" disabled />
+										</div>
+									</div>
+
+									<div class="form-group">
+										<label> Additional Equipment Costs</label>
+										<div>
+											<span style="position: absolute; margin-left: 5px; margin-top: 5px;">$</span>
+											<input type="number" class="form-control request-sitecontact" id="additionalequipmentcost" style="padding-left:20px;" value="1000" disabled />
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group" id="showregion" style="display:none;">
+									<label>Region:</label>
+									<select class="form-control request-region" id="region" name="region" placeholder="Select Region">
+										<option value=""></option>
+										<option>Coastal TC</option>
+										<option>Midlands TC</option>
+										<option>Upstate TC</option>
+										<option>North Carolina TC</option>
+										<option>Wilmington TC</option>
+									</select>
+								</div>
+								<div class="form-group" id="showclassofserviceandsolution" style="display:none">
+									<div class="form-group">
+										<label>Class of Service: </label>
+										<select class="form-control request-region" id="cos" name="cos" onchange="changeInterfaceSpeed()" placeholder="Select class of service">
+											<option value=""></option>
+											<!--<option value="Cross Connect">Cross Connect</option>-->
+											<!--<option value="DS0">DS0</option>
+											<option value="DS1">DS1</option>-->
+											<!--<option value="DS2">DS2</option>-->
+											<!--<option value="DS3">DS3</option>
+											<option value="DS3 (MUX)">DS3 (MUX)</option>-->
+											<option value="Ethernet">Ethernet</option>
+											<!--<option value="OC12/622Mb">OC12/622Mb</option>
+											<option value="OC195/10Gb">OC195/10Gb</option>-->
+											<!--<option value="OC3/10Mb">OC3/10Mb</option>
+											<option value="OC48/2.5Mb">OC48/2.5Mb</option>-->
+											<option value="Wavelength Service">Wavelength Service</option>
+											<option value="DarkFiber">DarkFiber</option>
+											<option value="TDM">TDM</option>
+											<option value="Other">Other</option>
+										</select>
+									</div>
+									<div class="form-group" id="showBandwidth" style="display:none">
+										<label>Bandwidth Requested</label>
+										<select class="form-control request-bandwidth" onchange="check()" id="bandwidth" name="bandwidth">
+											<!--<option value=""></option>
+											<option value="20Mb">20Mb</option>
+											<option value="50Mb">50Mb</option>
+											<option value="100Mb">100Mb</option>
+											<option value="200Mb">200Mb</option>
+											<option value="500Mb">500Mb</option>
+											<option value="1000Mb">1Gb</option>
+											<option value="2000Mb">2Gb</option>
+											<option value="5000Mb">5Gb</option>
+											<option value="10000Mb">10Gb</option>
+											<option value="100000Mb">100Gb</option>-->
+										</select>
+
+									</div>
+
+									<div class="form-group" id="showinterfacespeed" style="display: none;">
+										<label>Interface Speed: </label>
+										<select class="form-control request-region" id="interfacespeed" name="interfacespeed" placeholder="Interface Speed">
+											<option value=""></option>
+											<option id="is100" value="100Mb" style="display:block">100Mb</option>
+											<option id="is1" value="1Gb" style="display:block">1Gb</option>
+											<option id="is10" value="10Gb" style="display:block">10Gb</option>
+										</select>
+									</div>
+									<div class="form-group" id="showProposedSolution" style="display:none">
+										<label>Proposed Solution: </label>
+										<textarea id="proposedsolution" rows="4" cols="70" maxlength="200" style="max-width: 100%; overflow: hidden; " placeholder="type propose solution here..."></textarea>
+									</div>
+
+								</div>
+								<div class="form-group" style="display:none">
+									<label>NearNet OnNet Location ID: </label>
+									<input type="text" class="form-control" id="NearNetOnNetLocationID" />
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-primary" onclick="addLocationToCard(event)">Add Location</button>
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<!-- Create Opportunity Modal -->
+			<div class="modal fade" id="ConnectToDynamcis">
+				<div class="modal-dialog" role="dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h5 class="modal-title">Submit to Dynamics</h5>
+						</div>
+						<div id="dynamicsFormAlert" style="padding:5px;"></div>
+						<div class="modal-body">
+							<div class="form-group" style="display:none;">
+								<label>Segra Employee User Name</label>
+								<input type="text" id="employee_username" class="form-control request-coordinates" readonly="readonly" />
+							</div>
+
+
+							<div class="form-group" style="display:none;">
+								<label>Service Locations</label>
+								<ul id="serviceLocations" style="font-size:1.0rem;"></ul>
+							</div>
+
+
+							<div class="wrapper center-block">
+								<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+									<div class="panel panel-default accountHide">
+										<div class="panel-heading" role="tab" id="headingOne">
+											<div class="row">
+												<label class="panel-title-heading col-xs-9">Account Details </label>
+												<a class="col-xs-3" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse1" aria-expanded="true" aria-controls="collapseOne">
+												</a>
+											</div>
+										</div>
+										<div id="collapse1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+											<div class="panel-body">
+												<div class="form-group accountDivs">
+													<label> Account Name </label>
+													<input type="text" id="o_account_name" class="form-control" readonly="readonly" placeholder="Enter the Account Name" />
+												</div>
+												<div class="form-group accountDivsNumber">
+													<label> Account Number </label>
+													<input type="text" id="o_account_number" class="form-control" readonly="readonly" placeholder="Enter the Account Number" />
+												</div>
+												<div class="form-group" style="display:none">
+													<label> Account ID </label>
+													<input type="text" id="o_account_id" class="form-control" placeholder="Enter the Account ID" />
+												</div>
+												<div class="form-group row ifNewLogo">
+													<div class="col-xs-3">
+														<label> HQ Street Ad </label>
+														<input type="text" id="o_account_hq_street" class="form-control" placeholder="Enter HQ Street " />
+													</div>
+													<div class="col-xs-3">
+														<label> HQ City </label>
+														<input type="text" id="o_account_hq_city" class="form-control" placeholder="Enter HQ City " />
+													</div>
+													<div class="col-xs-3">
+														<label> HQ State </label>
+														<input type="text" id="o_account_hq_state" class="form-control" placeholder="Enter HQ State " />
+													</div>
+													<div class="col-xs-3">
+														<label> HQ Zip </label>
+														<input type="text" id="o_account_hq_zip" class="form-control" placeholder="Enter HQ Zip " />
+													</div>
+												</div>
+												<div class="form-group ifNewLogo">
+													<label>HQ Phone#</label>
+													<input type="number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="10" class="form-control request-sitenumber numeric" id="o_account_hq__num" placeholder="Type Number" required="required" />
+												</div>
+												<div class="form-group ifNewLogo">
+													<label>HQ Email</label>
+													<input type="email" class="form-control" id="o_account_hq__email" placeholder="Type Email" required="required" />
+												</div>
+												<div class="form-group ifNewLogo">
+													<label>Account URL</label>
+													<input type="text" class="form-control request-contactemail" id="o_account_url" placeholder="Enter Account URL" required="required" />
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="panel panel-default contactInfo">
+										<div class="panel-heading" role="tab" id="headingTwo">
+											<div class="row">
+												<label class="panel-title-heading col-xs-9"> Primary Contact Details </label>
+												<a class="col-xs-3" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse2" aria-expanded="true" aria-controls="collapseTwo">
+												</a>
+											</div>
+
+										</div>
+										<div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+											<div class="panel-body">
+												<div class="form-group contactInfo">
+													<label>Contact Name</label>
+													<input type="text" class="form-control request-sitecontact" id="con_name" placeholder="Type Contact Name" required="required" /><span class="smaller" style="color: red">* Please provide both first and last name..</span>
+												</div>
+												<div class="form-group contactInfo">
+													<label>Contact Phone#</label>
+													<input type="number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="10" class="form-control request-sitenumber numeric" id="c_num" placeholder="Type Contact Number" required="required" />
+												</div>
+												<div class="form-group contactInfo">
+													<label>Contact Email</label>
+													<input type="email" class="form-control request-contactemail" id="email" placeholder="Enter Email" required="required" />
+												</div>
+												<div class="form-group row contactInfo">
+													<div class="col-xs-3">
+														<label> Street </label>
+														<input type="text" id="c_street" class="form-control" placeholder="Enter Street " />
+													</div>
+													<div class="col-xs-3">
+														<label> City </label>
+														<input type="text" id="c_city" class="form-control" placeholder="Enter City " />
+													</div>
+													<div class="col-xs-3">
+														<label> State </label>
+														<input type="text" id="c_state" class="form-control" placeholder="Enter State " />
+													</div>
+													<div class="col-xs-3">
+														<label> Zip </label>
+														<input type="text" id="c_zip" class="form-control" placeholder="Enter Zip " />
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="panel panel-default">
+										<div class="panel-heading" role="tab" id="headingThree">
+											<div class="row">
+												<label class="panel-title-heading col-xs-9">Opportunity Details </label>
+												<a class="col-xs-3" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse3" aria-expanded="true" aria-controls="collapseThree">
+												</a>
+
+											</div>
+										</div>
+										<div id="collapse3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+											<div class="panel-body">
+												<div class="form-group">
+													<label>Opportunity Name</label>
+													<input type="text" class="form-control request-customer-name" id="opportunity_name" placeholder="Type Opportunity Name" maxlength="39" />
+													<span class="smaller" style="color:red"> * Max 39 characters, avoid using special characters i.e @,%*&^$!..</span>
+												</div>
+
+												<div id="display_newOppInfo" style="display:none">
+													<!--<div class="form-group">
+														<select class="form-control" id="opportunity_industry">
+															<option value=""></option>
+														</select>
+													</div>-->
+													<div class="form-group">
+														<label>Sales Channel:</label>
+														<select class="form-control request-term" id="channel" placeholder="Select Sales Channel" required="required">
+															<option value="enterprise">Enterprise</option>
+															<option value="government">Government</option>
+														</select>
+													</div>
+													<div class="form-group">
+														<label>Contract Type</label>
+														<select class="form-control request-term" id="opportunity_contract">
+															<option value="New">New</option>
+															<option value="Upgrade">Upgrade</option>
+															<option value="Renewal">Renewal</option>
+															<option value="CoterminousAdds">Coterminous Adds</option>
+														</select>
+													</div>
+													<div class="form-group" style="display: none;">
+														<label>Appointment Date</label>
+														<input type="date" class="form-control request-date" id="date" placeholder="Type Appointment Date" required="required" />
+													</div>
+													<div class="form-group" style="display: none;">
+														<label>Appointment Date Note</label>
+														<input type="text" class="form-control request-note" id="note" placeholder="Type Notes for the Appointment" required="required" />
+													</div>
+													<div class="form-group">
+														<label for="date">Estimated Close Date</label>
+														<input type="date" class="form-control" id="EstimatedCloseDateOpp" required="required" />
+													</div>
+													<div class="form-group">
+														<label> Estimated Revenue </label>
+														<input type="number" class="form-control" id="EstimatedRevenue" placeholder="Type Estimated Revenue" required="required" min="0" oninput="validity.valid||(value='');" />
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-primary" onclick="ConnectToDynamics()">Submit to Dynamics</button>
+							<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+
+
+			<!--Modal for View Instructions-->
+			<div class="modal" id="instructions" data-backdrop="static" role="dialog">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">Instructions </h4>
+						</div>
+						<div class="modal-body">
+							<form>
+								<label class="" style="color: red"> 300 Locations Max.</label>
+								<ol style="">
+									<li class="small"><b>Download the template and save the csv file.</b></li>
+									<li class="small"><b>Upload the csv file.</b></li>
+									<li class="small"><b>Complete the fields in the table</b> <i> (to complete <b>all locations</b> in bulk with the same information, click the blue<b> Select/De-select</b> all button)</i></li>
+									<li class="small"><b>Choose locations</b> for the cart by clicking the<b> select boxes</b> <i> (or select all locations by checking the column heading select box)</i> </li>
+									<li class="small"><b>Add to Location Cart, fix any errors, add to cart again.</b></li>
+								</ol>
+								<label>Tips</label>
+								<ul style="padding-left:40px;">
+									<li class="small">If there are errors, locations will not load to cart and the <b>Error button</b> will turn red.  Click on that button to view the errors so you know what to fix.</li>
+									<li class="small"><b>Pin a column</b> (like the street) so that as you scroll to the right, you can still see it. Drag the column you want to pin over to the beginning and hold for 1 second.</li>
+									<li class="small"><b>Expand a column</b> to see more data by moving the separator line between the columns.</li>
+									<li class="small"><b>Do not use punctuation</b> in the data, if you do, it will show as an error.</li>
+									<li class="small"><b>Street field </b> should be 38 characters or less.</li>
+									<li class="small">It is not necessary to use the <b> Select All/Deselect All</b>.  Individual choices can be made on each location row if preferred.</li>
+									<li class="small"><b>Number of rows per page can be changed</b> from 10-300 in intervals of 50.  Default is 10.</li>
+									<li class="small"><b>Columns can be filtered </b>(indicated by three horizontal lines, i.e. you could filter by state or city).</li>
+									<li class="small"><b>Single row’s cells can be edited </b>by double clicking on a cell.</li>
+									<li class="small"><b>Required fields</b> will display in <b>red</b>.</li>
+									<li class="small">Please input Apt, Floor, Suite, Building into a given apt/st/bldg/fl column instead of street_address column.</li>
+									<li class="small">Go to the <b>Segra Playbook</b> for more detailed instructions.</li>
+								</ul>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<!--Errors Modal-->
+
+			<div class="modal" id="errors" data-backdrop="static" role="dialog">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">Please fix these errors </h4>
+						</div>
+						<div class="modal-body">
+							<div id="bulkUploadAlert"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<!-- Bulk Select Popup Modal -->
+			<div class="modal fade" id="bulkSelect" role="dialog">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">Select all </h4>
+						</div>
+						<div class="modal-body">
+
+							<div class="LocationInfoDiv" style="text-align:center;"><span class="badge badge-info" style="margin-top:5pt; text-align:center; margin-bottom:10pt;background: #f0ad4e; font-size: larger;">Location Information</span></div>
+							<div class="form-group row">
+								<div class="col-sm-6">
+									<div style="display:inline-block">
+										<label class="input-group-text labelColor" for="inputGroupSelect01">Build Type</label>
+										<select id="selectAllLocationType" class="form-control" placeholder="Select class of service">
+											<option value=""></option>
+											<option value="New" selected="selected">New</option>
+											<option value="Existing">Existing</option>
+											<option value="OnNet">OnNet</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="col-sm-6">
+									<div style="display:inline-block">
+										<label class="input-group-text" for="inputGroupSelect01">Bandwidth</label>
+										<select id="selectAllBandWidth" class="form-control" placeholder="Select class of service">
+											<option value="none"></option>
+											<!--<option value="5Mb">5Mb</option>
+											<option value="2Mb">2Mb</option>
+											<option value="3Mb">3Mb</option>
+											<option value="6Mb">6Mb</option>
+											<option value="10Mb">10Mb</option>-->
+											<option value="20Mb">20Mb</option>
+											<!--<option value="30Mb">30Mb</option>
+											<option value="40Mb">40Mb</option>-->
+											<option value="50Mb">50Mb</option>
+											<!--<option value="60Mb">60Mb</option>
+											<option value="70Mb">70Mb</option>
+											<option value="80Mb">80Mb</option>
+											<option value="90Mb">90Mb</option>-->
+											<option value="100Mb">100Mb</option>
+											<!-- <option value="150Mb">150Mb</option>-->
+											<option value="200Mb">200Mb</option>
+											<!--<option value="250Mb">250Mb</option>
+											<option value="300Mb">300Mb</option>
+											<option value="350Mb">350Mb</option>
+											<option value="400Mb">400Mb</option>
+											<option value="450Mb">450Mb</option>-->
+											<option value="500Mb">500Mb</option>
+											<!--<option value="550Mb">550Mb</option>
+											<option value="600Mb">600Mb</option>
+											<option value="650Mb">650Mb</option>
+											<option value="700Mb">700Mb</option>
+											<option value="750Mb">750Mb</option>
+											<option value="800Mb">800Mb</option>
+											<option value="850Mb">850Mb</option>
+											<option value="900Mb">900Mb</option>
+											<option value="950Mb">950Mb</option>-->
+											<option value="1000Mb">1Gb</option>
+											<option value="2000Mb">2Gb</option>
+											<!--<option value="3000Mb">3Gb</option>
+											<option value="4000Mb">4Gb</option>-->
+											<option value="5000Mb">5Gb</option>
+											<!--<option value="6000Mb">6Gb</option>
+											<option value="7000Mb">7Gb</option>
+											<option value="8000Mb">8Gb</option>
+											<option value="9000Mb">9Gb</option>-->
+											<option value="10000Mb">10Gb</option>
+											<option value="100000Mb">100Gb</option>
+
+										</select>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<div class="col-sm-4">
+									<div style="display: inline-block">
+										<label class="input-group-text" for="inputGroupSelect01">Location Type</label>
+										<select id="AllALocationType1" class="form-control" placeholder="Select Location Type">
+											<option value=""> </option>
+											<option value="Building"> Building </option>
+											<option value="Campus Building"> Campus Building </option>
+											<option value="Tower"> Tower </option>
+											<option value="Small Cell"> Small Cell </option>
+											<option value="Splice Point"> Splice Point </option>
+											<option value="Carrier Building/Data Center"> Carrier Building/Data Center </option>
+										</select>
+									</div>
+								</div>
+
+								<div class="col-sm-4" style="text-align: center;">
+									<div style="display: inline-block;">
+										<label class="input-group-text" for="inputGroupSelect01">Primary Use Type</label>
+										<select id="AllLocationSubType" class="form-control" placeholder="Select All Primary Use Type">
+											<option value=""> </option>
+											<option value="Hospitality"> Hospitality </option>
+											<option value="Hospital"> Hospital </option>
+											<option value="Education"> Education </option>
+											<option value="Commercial Office"> Commercial Office </option>
+											<option value="Industrial"> Industrial </option>
+											<option value="Warehouse"> Warehouse </option>
+											<option value="Retail - Single Tenant Building"> Retail - Single Tenant Building </option>
+											<option value="Retail - Multitenant Facility"> Retail - Multitenant Facility </option>
+											<option value="Military Facility"> Military Facility </option>
+											<option value="Mixed Use"> Mixed Use </option>
+											<option value="Other"> Other </option>
+											<option value="Carrier Hut"> Carrier Hut </option>
+											<option value="H-Frame"> H-Frame </option>
+											<option value="Commercial Computing Data Center"> Commercial Computing Data Center </option>
+											<option value="Carrier Hotel - Multitenant"> Carrier Hotel - Multitenant </option>
+											<option value="Wireless Carrier MSC"> Wireless Carrier MSC </option>
+											<option value="Single Carrier CO/POP"> Single Carrier CO/POP </option>
+										</select>
+									</div>
+								</div>
+
+								<div class="col-sm-4">
+									<div style="display: inline-block">
+										<label class="input-group-text labelColor" for="inputGroupSelect01">Multi Tenant</label>
+										<select id="AllMultiTenant" class="form-control" placeholder="Select All Multi Tenant">
+											<option value=""></option>
+											<option value="Yes">Yes</option>
+											<option value="No">No</option>
+										</select>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<div class="col-sm-4">
+									<div style="display: inline-block">
+										<label class="input-group-text" for="inputGroupSelect01">Floor</label>
+										<select id="AllFloor" class="form-control" placeholder="Select Floor">
+											<option value=""> </option>
+											<option value="LL3"> LL3 </option>
+											<option value="LL2"> LL2 </option>
+											<option value="LL1"> LL1 </option>
+											<option value="1" selected="selected"> 1 </option>
+											<option value="2"> 2 </option>
+											<option value="3"> 3 </option>
+											<option value="4"> 4 </option>
+											<option value="5"> 5 </option>
+											<option value="6"> 6 </option>
+											<option value="7"> 7 </option>
+											<option value="8"> 8 </option>
+											<option value="9"> 9 </option>
+											<option value="10"> 10 </option>
+											<option value="11"> 11 </option>
+											<option value="12"> 12 </option>
+											<option value="13"> 13 </option>
+											<option value="14"> 14 </option>
+											<option value="15"> 15 </option>
+											<option value="16"> 16 </option>
+											<option value="17"> 17 </option>
+											<option value="18"> 18 </option>
+											<option value="19"> 19 </option>
+											<option value="20"> 20 </option>
+											<option value="21"> 21 </option>
+											<option value="22"> 22 </option>
+											<option value="23"> 23 </option>
+											<option value="24"> 24 </option>
+											<option value="25"> 25 </option>
+											<option value="26"> 26 </option>
+											<option value="27"> 27 </option>
+											<option value="28"> 28 </option>
+											<option value="29"> 29 </option>
+											<option value="30"> 30 </option>
+											<option value="31"> 31 </option>
+											<option value="32"> 32 </option>
+											<option value="33"> 33 </option>
+											<option value="34"> 34 </option>
+											<option value="35"> 35 </option>
+											<option value="36"> 36 </option>
+											<option value="37"> 37 </option>
+											<option value="38"> 38 </option>
+											<option value="39"> 39 </option>
+											<option value="40"> 40 </option>
+											<option value="41"> 41 </option>
+											<option value="42"> 42 </option>
+											<option value="43"> 43 </option>
+											<option value="44"> 44 </option>
+											<option value="45"> 45 </option>
+											<option value="46"> 46 </option>
+											<option value="47"> 47 </option>
+											<option value="48"> 48 </option>
+											<option value="49"> 49 </option>
+											<option value="50"> 50 </option>
+											<option value="51"> 51 </option>
+											<option value="52"> 52 </option>
+											<option value="53"> 53 </option>
+											<option value="54"> 54 </option>
+											<option value="55"> 55 </option>
+											<option value="56"> 56 </option>
+											<option value="57"> 57 </option>
+											<option value="58"> 58 </option>
+											<option value="59"> 59 </option>
+											<option value="60"> 60 </option>
+											<option value="61"> 61 </option>
+											<option value="62"> 62 </option>
+											<option value="63"> 63 </option>
+											<option value="64"> 64 </option>
+											<option value="65"> 65 </option>
+											<option value="66"> 66 </option>
+											<option value="67"> 67 </option>
+											<option value="68"> 68 </option>
+											<option value="69"> 69 </option>
+											<option value="70"> 70 </option>
+											<option value="71"> 71 </option>
+											<option value="72"> 72 </option>
+											<option value="73"> 73 </option>
+											<option value="74"> 74 </option>
+											<option value="75"> 75 </option>
+											<option value="76"> 76 </option>
+											<option value="77"> 77 </option>
+											<option value="78"> 78 </option>
+											<option value="79"> 79 </option>
+											<option value="80"> 80 </option>
+											<option value="81"> 81 </option>
+											<option value="82"> 82 </option>
+											<option value="83"> 83 </option>
+											<option value="84"> 84 </option>
+											<option value="85"> 85 </option>
+											<option value="86"> 86 </option>
+											<option value="87"> 87 </option>
+											<option value="88"> 88 </option>
+											<option value="89"> 89 </option>
+											<option value="90"> 90 </option>
+											<option value="91"> 91 </option>
+											<option value="92"> 92 </option>
+											<option value="93"> 93 </option>
+											<option value="94"> 94 </option>
+											<option value="95"> 95 </option>
+											<option value="96"> 96 </option>
+											<option value="97"> 97 </option>
+											<option value="98"> 98 </option>
+											<option value="90"> 99 </option>
+											<option value="100"> 100 </option>
+										</select>
+									</div>
+								</div>
+
+								<div class="col-sm-4" style="text-align: center;">
+									<div style="display: inline-block;">
+										<label class="input-group-text" for="inputGroupSelect01">STE/APT/RM</label>
+										<select id="AllSTEAPTRM" class="form-control" placeholder="Select All STE APT RM">
+											<option value=""></option>
+											<option value="APT">APT</option>
+											<option value="STE">STE</option>
+											<option value="RM">RM</option>
+											<option value="DEPT">DEPT</option>
+											<option value="BLDG">BLDG</option>
+											<option value="UNIT">UNIT</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="col-sm-4">
+									<div style="display: inline-block">
+										<label class="input-group-text labelColor" for="inputGroupSelect01">STE/APT/RM#</label>
+										<input id="AllSTEAPTRM_Num" class="form-control" placeholder="Select STE APT RM Num" />
+									</div>
+								</div>
+							</div>
+
+
+
+							<div style="text-align:center;"><span class="badge badge-info" style="margin-top:10pt; text-align:center; margin-bottom:10pt;background: #f0ad4e; font-size: larger;">Request Information</span></div>
+							<form>
+								<div class="form-group row">
+									<div class="col-sm-6">
+										<label style="font-weight:bold;" class="checkbox-inline labelColor">
+											<input id="onnetSelectAll" type="checkbox" value="">Submit FSR
+										</label>
+									</div>
+									<!--<div class="col-sm-4">
+										<label style="font-weight:bold;" class="checkbox-inline labelColor">
+											<input id="offnetSelectAll" type="checkbox" value="">Submit ONR
+										</label>
+									</div>-->
+									<!--<div class="col-sm-3">
+										<label style="font-weight:bold;" class="checkbox-inline labelColor">
+											<input id="eocSelectAll" type="checkbox" value="">Submit EOC
+										</label>
+									</div>-->
+									<div class="col-sm-6">
+										<label style="font-weight:bold;" class="checkbox-inline labelColor">
+											<input id="diversitySelectAll" type="checkbox" value="">Diversity
+										</label>
+									</div>
+								</div>
+							</form>
+
+
+							<form>
+								<div>
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<div style="display:inline-block">
+												<label class="input-group-text" for="inputGroupSelect01">Class of Service</label>
+												<select id="AllClassOfService" class="form-control" placeholder="Select class of service">
+													<option value=""></option>
+													<option value="Cross Connect">Cross Connect</option>
+													<option value="DS0">DS0</option>
+													<option value="DS1">DS1</option>
+													<!--<option value="DS2">DS2</option>-->
+													<option value="DS3">DS3</option>
+													<option value="DS3 (MUX)">DS3 (MUX)</option>
+													<option value="Ethernet">Ethernet</option>
+													<option value="OC12/622Mb">OC12/622Mb</option>
+													<option value="OC195/10Gb">OC195/10Gb</option>
+													<option value="OC3/10Mb">OC3/10Mb</option>
+													<option value="OC48/2.5Mb">OC48/2.5Mb</option>
+													<option value="Wavelength Service">Wavelength Service</option>
+													<option value="Other">Other</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-sm-6">
+											<div style="display:inline-block">
+
+												<label class="input-group-text" for="inputGroupSelect01">Diversity Options</label>
+												<select id="AllDiversityType" class="form-control" placeholder="Select class of service">
+													<option value=""></option>
+													<option value="Dedicated Physical Ring"> Dedicated Physical Ring </option>
+													<option value="Dedicated Virtual Ring"> Dedicated Virtual Ring </option>
+													<option value="Dual Entrance Facility"> Dual Entrance Facility </option>
+													<option value="Non Collapsed Last Mile Lateral"> Non Collapsed Last Mile Lateral </option>
+													<option value="Non Collapsed Lateral & Dual Entrance"> Non Collapsed Lateral & Dual Entrance </option>
+													<option value="POP Diversity with Router Diversity"> POP Diversity with Router Diversity </option>
+													<option value="Redundant CPE Router/Switch 10G Port"> Redundant CPE Router/Switch 10G Port </option>
+													<option value="Redundant CPE Router/Switch 1G Port"> Redundant CPE Router/Switch 1G Port </option>
+													<option value="Single Pop with Router Diversity"> Single Pop with Router Diversity </option>
+												</select>
+											</div>
+										</div>
+
+									</div>
+
+
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<div style="display:inline-block">
+												<label class="input-group-text" for="inputGroupSelect01">Interface Speed</label>
+												<select id="selectAllinterfacespeed" placeholder="Interface Speed" class="form-control">
+													<option value=""></option>
+													<option id="is100" value="100Mb" style="display:block">100Mb</option>
+													<option id="is1" value="1Gb" style="display:block">1Gb</option>
+													<option id="is10" value="10Gb" style="display:block">10Gb</option>
+												</select>
+											</div>
+										</div>
+
+										<div class="col-sm-6">
+											<div style="display:inline-block">
+												<label>Proposed Solution</label>
+												<textarea class="form-control" id="proposedsolutionbulk" rows="2" cols="30" maxlength="100" style="max-width: 100%; overflow: hidden; " placeholder="type propose solution here..."></textarea>
+											</div>
+										</div>
+									</div>
+								</div>
+							</form>
+
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<!-- Success Modal -->
+			<div class="modal fade centered-modal" id="SuccessModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header bg-success" style="text-align:center;">
+							<h3 class="text-white" style="text-align:center;"> !!!Opportunity Created!!!</h3>
+						</div>
+						<div class="modal-footer" style="text-align:center;">
+							<div class="row" id="oppCreatedNotification" style="padding-top:10px; display:none;">
+								<label id="oppcreatedid">Opportunity Created</label>
+							</div>
+							<div class="row" id="oppExistingNotification" style="padding-top:10px; display:none;">
+								<label>Adding Locations to Existing Opp..</label>
+							</div>
+							<div class="row" id="ZLocCreatedNotification" style="padding-top:10px; display:none;">
+								<label id="changethelabel">Locations Created</label>
+							</div>
+							<div class="row" id="AROUpdateddNotification" style="padding-top:10px; display:none;">
+								<label id="changeAROlable">Updated HLE based on ARO data....</label>
+							</div>
+							<div class="showButtons" id="showButtons" style="display:none">
+								<button type="button" onclick="redirectDynamcics()" class="btn btn-primary">Go To Opportunity</button>
+								<button type="button" onclick="reloadPage()" class="btn btn-primary">Create More</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!--  Panel for filter Widget -->
+			<div id="customLayerFilterModal" data-keyboard="false" class="modal custom-modal fade">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&#xf021;</button>-->
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+							<h4 class="modal-title"> Filter Customer Account Data &amp; Leads</h4>
+
+							<!--<i class="fa fa-refresh col-xs-1" aria-hidden="true"></i>-->
+
+						</div>
+						<div class="modal-body">
+							<div>
+								<!--<button data-toggle="collapse" data-target="#demo">Collapsible</button>-->
+
+								<div id="demo" class="custom-control custom-switch">
+
+									<!--<label class="custom-control-label" for="customSwitches">Customer Account Data</label>-->
+								</div>
+							</div>
+
+							<div class="wrapper center-block">
+								<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+									<div class="panel panel-default">
+										<div class="panel-heading active" role="tab" id="headingOne">
+											<div class="row">
+												<label class="panel-title-heading col-xs-9">Customer Account Data <input type="checkbox" name="customerAccountDataFilter" class="custom-control-input" id="customSwitches"></label>
+
+												<a class="col-xs-3" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+												</a>
+
+											</div>
+										</div>
+										<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+											<div class="panel-body">
+												<div class="form-group">
+													<label class="panel-fonts"> Billing Account ID</label>
+													<select class="form-control panel-fonts" id="BillingAccounts">
+														<option value=""></option>
+													</select>
+												</div>
+												<div class="form-group">
+													<label class="panel-fonts"> Contract End Date is on or before</label>
+													<input class="form-control panel-fonts" type="date" id="contractEndDateIsOnOrBefore" />
+												</div>
+												<div class="form-group" id="displayAccountOwner" style="display:none;">
+													<label class="panel-fonts"> Account Owner</label>
+													<select class="form-control panel-fonts" id="accountOwner">
+														<option value=""></option>
+													</select>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="panel panel-default">
+										<div class="panel-heading" role="tab" id="headingTwo">
+											<div class="row">
+												<label class="panel-title-heading col-xs-9"> Segra Leads <input type="checkbox" name="segraLeadsFilter" class="custom-control-input" id="segraLeads"></label>
+												<a class="col-xs-3" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+												</a>
+											</div>
+											<!--<h4 class="panel-title">
+												<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+													Segra Leads
+												</a>
+											</h4>-->
+										</div>
+										<div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+											<div class="panel-body">
+												<div class="form-group" id="displayLeadsOwner" style="display:none;">
+													<label class="panel-fonts"> Lead Owner</label>
+													<select class="form-control panel-fonts" id="leadOwner">
+														<option value=""></option>
+													</select>
+												</div>
+												<div class="form-group">
+													<label class="panel-fonts"> Status</label>
+													<select class="form-control panel-fonts" id="leadsStatus">
+														<option value=""></option>
+														<option value="New">New</option>
+														<option value="Contacted">Contacted</option>
+														<option value="Qualified">Qualified</option>
+														<option value="Not the Right Target Company">Not the Right Target Company</option>
+														<option value="Cannot Contact">Cannot Contact</option>
+														<option value="Duplicate Lead">Duplicate Lead</option>
+														<option value="Existing Opportunity">Existing Opportunity</option>
+														<option value="No Longer Interested">No Longer Interested</option>
+														<option value="Abandoned - Comm Ops Only">Abandoned - Comm Ops Only</option>
+														<option value="Existing Customer">Existing Customer</option>
+														<option value="Out of Business">Out of Business</option>
+														<option value="In Contract > 1 Year">In Contract > 1 Year</option>
+													</select>
+												</div>
+												<div class="form-group">
+													<label class="panel-fonts"> Campaign</label>
+													<select class="form-control panel-fonts" id="campaign">
+														<option value=""></option>
+														<option value="WAVE II MAE">WAVE II MAE</option>
+														<option value="WAVE II SAE">WAVE II SAE</option>
+														<option value="WAVE II SBAE">WAVE II SBAE</option>
+														<option value="WAVE III MAE">WAVE III MAE</option>
+														<option value="WAVE IV MAE">WAVE IV MAE</option>
+														<option value="WAVE IV SBAE">WAVE IV SBAE</option>
+														<option value="WAVE IV: AM Security">WAVE IV: AM Security</option>
+														<option value="WAVE IV: AM Unify">WAVE IV: AM Unify</option>
+														<option value="Wave VII AM High Intent">Wave VII AM High Intent</option>
+														<option value="Wave IX Business Continuity 2">Wave IX Business Continuity 2</option>
+														<option value="Wave VIII Business Continuity 1">Wave VIII Business Continuity 1</option>
+														<option value="Wave VII Remote Office Lan Launch">Wave VII Remote Office Lan Launch</option>
+														<option value="WAVE IV SBAE Collaboration HOsted PBX Unify">WAVE IV SBAE Collaboration HOsted PBX Unify</option>
+														<option value="Wave V SBAE Multi Tenant Lit Bldgs">Wave V SBAE Multi Tenant Lit Bldgs</option>
+														<option value="Wave I SBAE">Wave I SBAE</option>
+														<option value="Wave V MAE Multi Tenant Lit Bldgs">Wave V MAE Multi Tenant Lit Bldgs</option>
+														<option value="WAVE IV MAE Collaboration Hosted PBX Unify">WAVE IV MAE Collaboration Hosted PBX Unify</option>
+														<option value="WAVE III MAE Security Suite">WAVE III MAE Security Suite</option>
+														<option value="Wave V High Intent Customers">Wave V High Intent Customers</option>
+														<option value="Wave II MAE High Intent">Wave II MAE High Intent</option>
+														<option value="Wave II SBAE Segra Lit Bldgs">Wave II SBAE Segra Lit Bldgs</option>
+														<option value="Wave I MAE">Wave I MAE</option>
+														<option value="Wave I: Data & voice only">Wave I: Data & voice only</option>
+														<option value="Wave II SAE OnNet Near Net Enteprise">Wave II SAE OnNet Near Net Enteprise</option>
+														<option value="Wave I SAE">Wave I SAE</option>
+														<option value="WAVE III SBAE Security Suite">WAVE III SBAE Security Suite</option>
+														<option value="Wave V SAE Multi Tenant Lit Bldgs">Wave V SAE Multi Tenant Lit Bldgs</option>
+														<option value="Wave I: Large enterprise upsell">Wave I: Large enterprise upsell</option>
+														<option value="Wave I: Data only">Wave I: Data only</option>
+														<option value="Wave VII AM Remote Office Lan">Wave VII AM Remote Office Lan</option>
+													</select>
+												</div>
+												<div class="form-group">
+													<label class="panel-fonts"> HQ in Segra Fiber</label>
+													<select class="form-control panel-fonts" id="HQInSegraFiber">
+														<option value=""></option>
+														<option value="Yes">Yes</option>
+														<option value="No">No</option>
+													</select>
+												</div>
+												<div class="form-group">
+													<label class="panel-fonts"> Full Potenrial MRC ></label>
+													<input type="number" class="form-control panel-fonts" id="fullPotentialMRC" />
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--<div class="panel panel-default">
+										<div class="panel-heading" role="tab" id="headingThree">
+											<h4 class="panel-title">
+												<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+													Collapsible Group Item #3
+												</a>
+											</h4>
+										</div>
+										<div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+											<div class="panel-body">
+												 VHS.
+											</div>
+										</div>
+									</div>-->
+								</div>
+							</div>
+
+						</div>
+						<!--<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+							<button id="loadpage" type="button" class="btn btn-primary">Save</button>
+						</div>-->
+					</div>
+					<!-- /.modal-content -->
+				</div>
+				<!-- /.modal-dialog -->
+			</div>
+			<!-- /.modal -->
+
+		</div>
+	</div>
+	<script src="js/customLoadingOverlay.js?v=2.1"></script>
+	<script src="js/customLoadingCellRenderer.js?v=2.1"></script>
+	<script src="js/main.js?v=2.1"></script>
+	<script src="js/AutoCompleteAccountNumInput.js?v=2.1"></script>
+	<script src="js/start.js?v=2.1"></script>
+	<script src="js/esriMapConnection.js?v=2.1"></script>
+	<script src="js/DynamicsRedirect.js?v=2.1"></script>
+	<script src="js/LocationNearNetCheck.js?v=2.1"></script>
+	<script src="js/Opportunitylookup.js?v=2.1"></script>
+	<script src="js/BulkUpload.js?v=2.1"></script>
+	<script src="js/Constants.js?v=2.1"></script>
+	<script src="js/EsriGeocodingService.js?v=2.1"></script>
+	<script src="js/CreateTable.js?v=2.1"></script>
+	<script src="js/CreateLocations.js?v=2.1"></script>
+	<script src="js/CreateOpportunity.js?v=2.1"></script>
+	<script src="js/LocationCart.js?v=2.1"></script>
+	<script src="js/DynamicsBulkTableUpdate.js?v=2.1"></script>
+	<script src="js/SingleLocation.js?v=2.1"></script>
+	<script src="js/BuildLocationList.js?v=2.1"></script>
+	<script src="js/BuildOpportunityFromList.js?v=2.1"></script>
+	<script src="js/SingleLocationModalEvents.js?v=2.1"></script>
+	<script src="js/BulkUploadGrid.js?v=2.1"></script>
+
+	<script src="js/AgGridDynamicsUpdateColumns.js?v=2.0"></script>
+</body>
+</html>

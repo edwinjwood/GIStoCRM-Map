@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link href="css/mainGrid.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <script>var __basePath = '/';</script>
+
+    <script src="https://unpkg.com/xlsx-style@0.8.13/dist/xlsx.full.min.js"></script>
+    <!--<script src="https://unpkg.com/@ag-grid-community/all-modules@23.1.1/dist/ag-grid-community.min.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+
+    <input type="file" id="csvfile" style="padding-bottom:10px;" accept=".csv,.xls,.xlsx" />
+    <button id="UploadButton" style="" type="button" onclick="Upload()" class="btn btn-info btn-sm"><span class="glyphicon glyphicon-open"></span> Upload the Excel</button>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Select/De-Select All</button>
+    <button type="button" class="btn btn-primary" onclick="addLocationToCard()"> Add Location to Card</button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Select all </h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group row">
+                            <div class="col-sm-4">
+                                <label class="checkbox-inline labelColor">
+                                    <input id="onnetSelectAll" type="checkbox" value="">On-net
+                                </label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="checkbox-inline labelColor">
+                                    <input id="offnetSelectAll" type="checkbox" value="">Off-net
+                                </label>
+                            </div>
+                            <!--<div class="col-sm-3">
+                                <label class="checkbox-inline labelColor">
+                                    <input id="eocSelectAll" type="checkbox" value="">EOC
+                                </label>
+                            </div>-->
+                            <div class="col-sm-4">
+                                <label class="checkbox-inline labelColor">
+                                    <input id="diversitySelectAll" type="checkbox" value="">Diversity
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+
+
+                    <form>
+                        <div>
+                            <div class="form-group row">
+                                <div class="col-sm-4">
+                                    <div style="display:inline-block">
+                                        <label class="input-group-text labelColor" for="inputGroupSelect01">Location Type</label>
+                                        <select id="selectAllLocationType" class="custom-select" placeholder="Select class of service">
+                                            <option value=""> </option>
+                                            <option value="New">New</option>
+                                            <option value="Existing">Existing</option>
+                                            <option value="OnNet">OnNet</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div style="display:inline-block">
+                                        <label class="input-group-text" for="inputGroupSelect01">Interface Speed</label>
+                                        <select id="selectAllinterfacespeed" placeholder="Interface Speed" class="custom-select">
+                                            <option value=""></option>
+                                            <option id="is100" value="100Mb" style="display:block">100Mb</option>
+                                            <option id="is1" value="1Gb" style="display:block">1Gb</option>
+                                            <option id="is10" value="10Gb" style="display:block">10Gb</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-sm-4">
+                                    <div style="display:inline-block">
+                                        <label class="input-group-text" for="inputGroupSelect01">Bandwidth</label>
+                                        <select id="selectAllBandWidth" class="custom-select" placeholder="Select class of service">
+                                            <option value="5Mb">5Mb</option>
+                                            <option value="2Mb">2Mb</option>
+                                            <option value="3Mb">3Mb</option>
+                                            <option value="6Mb">6Mb</option>
+                                            <option value="10Mb">10Mb</option>
+                                            <option value="20Mb">20Mb</option>
+                                            <option value="30Mb">30Mb</option>
+                                            <option value="40Mb">40Mb</option>
+                                            <option value="50Mb">50Mb</option>
+                                            <option value="60Mb">60Mb</option>
+                                            <option value="70Mb">70Mb</option>
+                                            <option value="80Mb">80Mb</option>
+                                            <option value="90Mb">90Mb</option>
+                                            <option value="100Mb">100Mb</option>
+                                            <option value="150Mb">150Mb</option>
+                                            <option value="200Mb">200Mb</option>
+                                            <option value="250Mb">250Mb</option>
+                                            <option value="300Mb">300Mb</option>
+                                            <option value="350Mb">350Mb</option>
+                                            <option value="400Mb">400Mb</option>
+                                            <option value="450Mb">450Mb</option>
+                                            <option value="500Mb">500Mb</option>
+                                            <option value="550Mb">550Mb</option>
+                                            <option value="600Mb">600Mb</option>
+                                            <option value="650Mb">650Mb</option>
+                                            <option value="700Mb">700Mb</option>
+                                            <option value="750Mb">750Mb</option>
+                                            <option value="800Mb">800Mb</option>
+                                            <option value="850Mb">850Mb</option>
+                                            <option value="900Mb">900Mb</option>
+                                            <option value="950Mb">950Mb</option>
+                                            <option value="1000Mb">1Gb</option>
+                                            <option value="2000Mb">2Gb</option>
+                                            <option value="3000Mb">3Gb</option>
+                                            <option value="4000Mb">4Gb</option>
+                                            <option value="5000Mb">5Gb</option>
+                                            <option value="6000Mb">6Gb</option>
+                                            <option value="7000Mb">7Gb</option>
+                                            <option value="8000Mb">8Gb</option>
+                                            <option value="9000Mb">9Gb</option>
+                                            <option value="10000Mb">10Gb</option>
+                                            <option value="100000Mb">100Gb</option>
+                                            <option value="none"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-6">
+                                    <div style="display:inline-block">
+                                        <label class="input-group-text" for="inputGroupSelect01">Class of Service</label>
+                                        <select id="AllClassOfService" class="custom-select" placeholder="Select class of service">
+                                            <option value=""></option>
+                                            <option value="Cross Connect">Cross Connect</option>
+                                            <option value="DS0">DS0</option>
+                                            <option value="DS1">DS1</option>
+                                            <option value="DS2">DS2</option>
+                                            <option value="DS3">DS3</option>
+                                            <option value="DS3 (MUX)">DS3 (MUX)</option>
+                                            <option value="Ethernet">Ethernet</option>
+                                            <option value="OC12/622Mb">OC12/622Mb</option>
+                                            <option value="OC195/10Gb">OC195/10Gb</option>
+                                            <option value="OC3/10Mb">OC3/10Mb</option>
+                                            <option value="OC48/2.5Mb">OC48/2.5Mb</option>
+                                            <option value="Wavelength Service">Wavelength Service</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div style="display:inline-block">
+
+                                        <label class="input-group-text" for="inputGroupSelect01">Diversity Options</label>
+                                        <select id="AllDiversityType" class="custom-select" placeholder="Select class of service">
+                                            <option value="Dedicated Physical Ring"> Dedicated Physical Ring </option>
+                                            <option value="Dedicated Virtual Ring"> Dedicated Virtual Ring </option>
+                                            <option value="Dual Entrance Facility"> Dual Entrance Facility </option>
+                                            <option value="Non Collapsed Last Mile Lateral"> Non Collapsed Last Mile Lateral </option>
+                                            <option value="Non Collapsed Lateral & Dual Entrance"> Non Collapsed Lateral & Dual Entrance </option>
+                                            <option value="POP Diversity with Router Diversity"> POP Diversity with Router Diversity </option>
+                                            <option value="Redundant CPE Router/Switch 10G Port"> Redundant CPE Router/Switch 10G Port </option>
+                                            <option value="Redundant CPE Router/Switch 1G Port"> Redundant CPE Router/Switch 1G Port </option>
+                                            <option value="Single Pop with Router Diversity"> Single Pop with Router Diversity </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group row">
+                                <div class="col-sm-6">
+                                    <div style="display:inline-block">
+                                        <label>Proposed Solution</label>
+                                        <textarea id="proposedsolutionbulk" rows="2" cols="30" maxlength="100" style="max-width: 100%; overflow: hidden; " placeholder="type propose solution here..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!--<button onclick="importExcel()" style="margin-bottom: 5px">Import Excel</button>-->
+    <div id="myGrid" style="height: calc(100% - 25px); width:100%;" class="ag-theme-alpine"></div>
+    <script src="js/customLoadingCellRenderer.js"></script>
+    <script src="js/BulkUploadGrid.js"></script>
+    <script src="js/BulkUpload.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/EsriGeocodingService.js"></script>
+    <script src="js/AgGridDynamicsUpdateColumns.js"></script>
+    <script src="js/Constants.js"></script>
+
+</body>
+</html>
