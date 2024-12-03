@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/EnterpriseMap/App.config
+/EnterpriseMap/App.Debug.config
+/EnterpriseMap/App.Release.config
+/EnterpriseMap/App.Staging.config
+/.vs/EnterpriseMap
